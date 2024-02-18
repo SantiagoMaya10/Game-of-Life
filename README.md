@@ -23,5 +23,4 @@ In order to run this project the user must open a terminal/console and navigate 
 
 Once the program has been started the user will be prompted to input the number of **rows** and **columns** to make the Game of Life grid.
 
-Change
 
