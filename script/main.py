@@ -4,7 +4,7 @@ import time
 import os
 import random
 import sys
-
+import numpy as np
 
 def clear_console():
     """
@@ -95,7 +95,7 @@ def print_grid(rows, cols, grid, generation):
     print(output_str, end=" ")
 
 
-def create_next_grid(rows, cols, grid, next_grid):
+def create_next_grid(rows, cols, current_grid, next_grid):
     """
     Analyzes the current generation of the Game of Life grid and determines what cells live and die in the next
     generation of the Game of Life grid.
@@ -110,21 +110,21 @@ def create_next_grid(rows, cols, grid, next_grid):
     for row in range(rows):
         for col in range(cols):
             # Get the number of live cells adjacent to the cell at grid[row][col]
-            live_neighbors = get_live_neighbors(row, col, rows, cols, grid)
+            live_neighbors = get_live_neighbors(row, col, rows, cols, current_grid)
 
             # If the number of surrounding live cells is < 2 or > 3 then we make the cell at grid[row][col] a dead cell
             if live_neighbors < 2 or live_neighbors > 3:
                 next_grid[row][col] = 0
             # If the number of surrounding live cells is 3 and the cell at grid[row][col] was previously dead then make
             # the cell into a live cell
-            elif live_neighbors == 3 and grid[row][col] == 0:
+            elif live_neighbors == 3 and current_grid[row][col] == 0:
                 next_grid[row][col] = 1
             # If the number of surrounding live cells is 3 and the cell at grid[row][col] is alive keep it alive
             else:
-                next_grid[row][col] = grid[row][col]
+                next_grid[row][col] = current_grid[row][col]
 
 
-def get_live_neighbors(row, col, rows, cols, grid):
+def get_live_neighbors(row, col, rows, cols, current_grid):
     """
     Counts the number of live cells surrounding a center cell at grid[row][cell].
 
@@ -136,14 +136,37 @@ def get_live_neighbors(row, col, rows, cols, grid):
     :return: Int - The number of live cells surrounding the cell at grid[row][cell]
     """
 
-    life_sum = 0
-    for i in range(-1, 2):
-        for j in range(-1, 2):
-            # Make sure to count the center cell located at grid[row][col]
-            if not (i == 0 and j == 0):
-                # Using the modulo operator (%) the grid wraps around
-                life_sum += grid[((row + i) % rows)][((col + j) % cols)]
-    return life_sum
+    convolution_matrix = np.array([[1,1,1],
+                                  [1,0,1],
+                                  [1,1,1]])
+    upper_left_elemt = returnGridValueByCoordinates(row-1,col-1,current_grid)
+    upper_middle_element = returnGridValueByCoordinates(row-1, col, current_grid)
+    upper_right_element = returnGridValueByCoordinates(row-1, col+1, current_grid)
+    middle_left_element = returnGridValueByCoordinates(row, col-1, current_grid)
+    middle_middle_element = returnGridValueByCoordinates(row, col, current_grid)
+    middle_right_element = returnGridValueByCoordinates(row, col+1, current_grid)
+    lower_left_element = returnGridValueByCoordinates(row+1, col-1, current_grid)
+    lower_middle_element = returnGridValueByCoordinates(row+1, col, current_grid)
+    lower_right_element = returnGridValueByCoordinates(row+1, col+1, current_grid)
+
+    surrounding_elements_matrix = np.array([[upper_left_elemt, upper_middle_element, upper_right_element],
+                                   [middle_left_element, middle_middle_element, middle_right_element],
+                                   [lower_left_element, lower_middle_element, lower_right_element]])
+    
+    living_neighbours = convolution_matrix*surrounding_elements_matrix
+
+
+    return np.sum(living_neighbours)
+
+def returnGridValueByCoordinates (rowIndex, colIndex, grid):
+    """
+    Returns zero if goes out of the grid bounds
+    Return the corresponding grid value otherwise
+    
+    """
+    if(rowIndex < 0 or colIndex < 0 or rowIndex >= len(grid) or colIndex >= len(grid[0])):
+        return 0
+    return grid[rowIndex][colIndex]
 
 
 def grid_changing(rows, cols, grid, next_grid):
@@ -217,7 +240,8 @@ def run_game():
             break
         print_grid(rows, cols, current_generation, gen)
         create_next_grid(rows, cols, current_generation, next_generation)
-        time.sleep(1 / 5.0)
+        input("Enter to see next gen >>")
+        ##time.sleep(1 / 5.0)
         current_generation, next_generation = next_generation, current_generation
 
     print_grid(rows, cols, current_generation, gen)
