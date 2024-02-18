@@ -162,8 +162,8 @@ def grid_changing(rows, cols, grid, next_grid):
         for col in range(cols):
             # If the cell at grid[row][col] is not equal to next_grid[row][col]
             if not grid[row][col] == next_grid[row][col]:
-                return True
-    return False
+                return False
+    return True
 
 
 def get_integer_value(prompt, low, high):
@@ -213,11 +213,12 @@ def run_game():
     # Run Game of Life sequence
     gen = 1
     for gen in range(1, generations + 1):
-        if not grid_changing(rows, cols, current_generation, next_generation):
+        if grid_changing(rows, cols, current_generation, next_generation):
             break
         print_grid(rows, cols, current_generation, gen)
         create_next_grid(rows, cols, current_generation, next_generation)
-        time.sleep(1 / 5.0)
+        input("Enter to see next gen >>")
+        #time.sleep(1 / 5.0)
         current_generation, next_generation = next_generation, current_generation
 
     print_grid(rows, cols, current_generation, gen)
