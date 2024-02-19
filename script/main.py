@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 
-import time
 import os
 import random
 import sys
 import numpy as np
+import photo_loader
+import photo_taker
+import hash_calculator
 
 def clear_console():
     """
@@ -47,6 +49,38 @@ def resize_console(rows, cols):
 
 
 def create_initial_grid(rows, cols):
+    """
+    Creates a random list of lists that contains 1s and 0s to represent the cells in Conway's Game of Life.
+
+    :param rows: Int - The number of rows that the Game of Life grid will have
+    :param cols: Int - The number of columns that the Game of Life grid will have
+    :return: Int[][] - A list of lists containing 1s for live cells and 0s for dead cells
+    """
+    take_photo = input("Enter 1 if you want to take new photo for seed generation\r\n or 0 for uploading an existing photo: ")
+    frame = None
+    if(take_photo == "1"):
+        print("Tomando foto ...")
+        frame = photo_taker.take_photo()
+    elif(take_photo == "0"):
+        frame = photo_loader.load_photo(input("Enter file path: "))
+    
+    hash = hash_calculator.calculate_frame_hash(frame)
+    infinite_ring = hash_calculator.infinite_ring(hash)
+
+    grid = []
+    for row in range(rows):
+        grid_rows = []
+        for col in range(cols):
+            # Generate a random number and based on that decide whether to add a live or dead cell to the grid
+            number_from_hash_ring = next(infinite_ring)
+            if  number_from_hash_ring == 0 or number_from_hash_ring == 5 or number_from_hash_ring == 9:
+                grid_rows += [1]
+            else:
+                grid_rows += [0]
+        grid += [grid_rows]
+    return grid
+
+def create_second_initial_grid(rows, cols):
     """
     Creates a random list of lists that contains 1s and 0s to represent the cells in Conway's Game of Life.
 
@@ -253,7 +287,7 @@ def run_game():
 
     # Create the initial random Game of Life grids
     current_generation = create_initial_grid(rows, cols)
-    next_generation = create_initial_grid(rows, cols)
+    next_generation = create_second_initial_grid(rows, cols)
 
     # Run Game of Life sequence
     gen = 1
