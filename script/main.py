@@ -119,7 +119,7 @@ def create_next_grid(rows, cols, current_grid, next_grid):
             # the cell into a live cell
             elif live_neighbors == 3 and current_grid[row][col] == 0:
                 next_grid[row][col] = 1
-            # If the number of surrounding live cells is 3 and the cell at grid[row][col] is alive keep it alive
+            # If the number of surrounding live cells is 3 or 2 and the cell at grid[row][col] is alive keep it alive
             else:
                 next_grid[row][col] = current_grid[row][col]
 
