@@ -50,7 +50,7 @@ def resize_console(rows, cols):
 
 def create_initial_grid(rows, cols):
     """
-    Creates a random list of lists that contains 1s and 0s to represent the cells in Conway's Game of Life.
+    Creates a list of lists with a seed given by an image that contains 1s and 0s to represent the cells in Conway's Game of Life.
 
     :param rows: Int - The number of rows that the Game of Life grid will have
     :param cols: Int - The number of columns that the Game of Life grid will have
