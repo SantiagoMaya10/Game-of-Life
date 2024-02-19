@@ -110,7 +110,7 @@ def create_next_grid(rows, cols, current_grid, next_grid):
     for row in range(rows):
         for col in range(cols):
             # Get the number of live cells adjacent to the cell at grid[row][col]
-            live_neighbors = get_live_neighbors(row, col, rows, cols, current_grid)
+            live_neighbors = get_live_neighbors(row, col, current_grid)
 
             # If the number of surrounding live cells is < 2 or > 3 then we make the cell at grid[row][col] a dead cell
             if live_neighbors < 2 or live_neighbors > 3:
@@ -124,7 +124,7 @@ def create_next_grid(rows, cols, current_grid, next_grid):
                 next_grid[row][col] = current_grid[row][col]
 
 
-def get_live_neighbors(row, col, rows, cols, current_grid):
+def get_live_neighbors(row, col, current_grid):
     """
     Counts the number of live cells surrounding a center cell at grid[row][cell].
 
@@ -139,34 +139,56 @@ def get_live_neighbors(row, col, rows, cols, current_grid):
     convolution_matrix = np.array([[1,1,1],
                                   [1,0,1],
                                   [1,1,1]])
-    upper_left_elemt = returnGridValueByCoordinates(row-1,col-1,current_grid)
-    upper_middle_element = returnGridValueByCoordinates(row-1, col, current_grid)
-    upper_right_element = returnGridValueByCoordinates(row-1, col+1, current_grid)
-    middle_left_element = returnGridValueByCoordinates(row, col-1, current_grid)
-    middle_middle_element = returnGridValueByCoordinates(row, col, current_grid)
-    middle_right_element = returnGridValueByCoordinates(row, col+1, current_grid)
-    lower_left_element = returnGridValueByCoordinates(row+1, col-1, current_grid)
-    lower_middle_element = returnGridValueByCoordinates(row+1, col, current_grid)
-    lower_right_element = returnGridValueByCoordinates(row+1, col+1, current_grid)
-
-    surrounding_elements_matrix = np.array([[upper_left_elemt, upper_middle_element, upper_right_element],
-                                   [middle_left_element, middle_middle_element, middle_right_element],
-                                   [lower_left_element, lower_middle_element, lower_right_element]])
     
-    living_neighbours = convolution_matrix*surrounding_elements_matrix
+    surrounding_elements_matrix =  get_surrounding_elements_matrix(row, col, current_grid)
+    
+    
+    living_neighbours_matrix = convolution_matrix * surrounding_elements_matrix
 
 
-    return np.sum(living_neighbours)
+    return np.sum(living_neighbours_matrix)
 
-def returnGridValueByCoordinates (rowIndex, colIndex, grid):
+def get_surrounding_elements_matrix(rowIndex, colIndex, current_grid):
+
+    """
+    Return the matriz of the surrounding elements of current cell
+    
+    :param rowIndex: Int - The current row index coordinate
+    :param colIndex: Int - The current colIndex coordinate
+    :param current_grid: Int[][] - The current grid beaing iterated
+    :return: Int[][] - The matriz of the surrounding elements of current cell
+    
+    """
+
+    upper_left_elemt = returnGridValueByCoordinates(rowIndex-1,colIndex-1,current_grid)
+    upper_middle_element = returnGridValueByCoordinates(rowIndex-1, colIndex, current_grid)
+    upper_right_element = returnGridValueByCoordinates(rowIndex-1, colIndex+1, current_grid)
+    middle_left_element = returnGridValueByCoordinates(rowIndex, colIndex-1, current_grid)
+    middle_middle_element = returnGridValueByCoordinates(rowIndex, colIndex, current_grid)
+    middle_right_element = returnGridValueByCoordinates(rowIndex, colIndex+1, current_grid)
+    lower_left_element = returnGridValueByCoordinates(rowIndex+1, colIndex-1, current_grid)
+    lower_middle_element = returnGridValueByCoordinates(rowIndex+1, colIndex, current_grid)
+    lower_right_element = returnGridValueByCoordinates(rowIndex+1, colIndex+1, current_grid)
+
+    return np.array([[upper_left_elemt, upper_middle_element, upper_right_element],
+                    [middle_left_element, middle_middle_element, middle_right_element],
+                    [lower_left_element, lower_middle_element, lower_right_element]])
+
+
+def returnGridValueByCoordinates (rowIndex, colIndex, current_grid):
     """
     Returns zero if goes out of the grid bounds
     Return the corresponding grid value otherwise
+
+    :param rowIndex: Int - The current row index coordinate
+    :param colIndex: Int - The current colIndex coordinate
+    :param current_grid: Int[][] - The current grid beaing iterated
+    :return: Int - Get current grid value by coordinate, if index out of grid bounds return 0
     
     """
-    if(rowIndex < 0 or colIndex < 0 or rowIndex >= len(grid) or colIndex >= len(grid[0])):
+    if(rowIndex < 0 or colIndex < 0 or rowIndex >= len(current_grid) or colIndex >= len(current_grid[0])):
         return 0
-    return grid[rowIndex][colIndex]
+    return current_grid[rowIndex][colIndex]
 
 
 def grid_changing(rows, cols, grid, next_grid):
